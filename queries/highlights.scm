@@ -1,3 +1,24 @@
+; Markup 
+
+"view!" @keyword
+"on:" @keyword
+"prop:" @keyword
+"style:" @keyword 
+"class:" @keyword
+(markup_opening_element 
+  "<" @punctuation.bracket
+  name: (identifier) @type
+  ">" @punctuation.bracket)
+(markup_closing_element 
+  "</" @punctuation.bracket
+  name: (identifier) @type
+  ">" @punctuation.bracket)
+(markup_self_closing_element 
+  "<" @punctuation.bracket
+  name: (identifier) @type
+  "/>" @punctuation.bracket)
+(markup_attribute (identifier) @constant)
+
 ; Identifier conventions
 
 ; Assume all-caps names are constants

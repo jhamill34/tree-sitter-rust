@@ -1,0 +1,734 @@
+================================================================================
+Base function
+================================================================================
+
+fn main() {
+	let x = 10;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (let_declaration
+        (identifier)
+		(integer_literal)))))
+
+================================================================================
+Self Closing View
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	view! {
+		cx,
+		<div />
+	}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute 
+	  (identifier)))
+  (function_item
+    (identifier)
+	(parameters 
+	  (parameter 
+	    (identifier)
+		(type_identifier)))
+	(abstract_type
+	  (type_identifier))
+	(block
+	  (macro_invocation
+	    (view_expression
+		  (identifier)
+		  (markup_self_closing_element
+		    (identifier)))))))
+
+================================================================================
+On Click Handler
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	view! {
+	  cx,
+	  <button on:click={|ev| {
+	    log::debug!("click event: {ev:#?}");
+	  }}>
+	    "Click me"
+	  </button>
+	}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_element
+            (markup_opening_element
+              (identifier)
+              (markup_attribute
+                (identifier)
+                (markup_expression
+                  (closure_expression
+                    (closure_parameters
+                      (identifier))
+                    (block
+                      (expression_statement
+                        (macro_invocation
+                          (scoped_identifier
+                            (identifier)
+                            (identifier))
+                          (token_tree
+                            (string_literal)))))))))
+            (string_literal)
+            (markup_closing_element
+              (identifier))))))))
+
+
+================================================================================
+Props 
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	let (name, set_name) = create_signal(cx, "Alice".to_string());
+
+	view! {
+	  cx,
+	  <input
+	    type="text"
+	    name="user_name"
+	    value={move || name.get()} 
+	    prop:value={move || name.get()} 
+	    on:click=move |ev| set_name.set(event_target_value(&ev)) 
+	  />
+	}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (identifier))
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)
+            (call_expression
+              (field_expression
+                (string_literal)
+                (field_identifier))
+              (arguments)))))
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_self_closing_element
+            (identifier)
+            (markup_attribute
+              (identifier)
+              (string_literal))
+            (markup_attribute
+              (identifier)
+              (string_literal))
+            (markup_attribute
+              (identifier)
+              (markup_expression
+                (closure_expression
+                  (closure_parameters)
+                  (call_expression
+                    (field_expression
+                      (identifier)
+                      (field_identifier))
+                    (arguments)))))
+            (markup_attribute
+              (identifier)
+              (markup_expression
+                (closure_expression
+                  (closure_parameters)
+                  (call_expression
+                    (field_expression
+                      (identifier)
+                      (field_identifier))
+                    (arguments)))))
+            (markup_attribute
+              (identifier)
+              (closure_expression
+                (closure_parameters
+                  (identifier))
+                (call_expression
+                  (field_expression
+                    (identifier)
+                    (field_identifier))
+                  (arguments
+                    (call_expression
+                      (identifier)
+                      (arguments
+                        (reference_expression
+                          (identifier))))))))))))))
+
+================================================================================
+Class attribute
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	let (count, set_count) = create_signal(cx, 2);
+
+	view! { 
+		cx, 
+		<div class:hidden_div={move || count.get() < 3}>"Now you see me, now you don’t."</div> 
+	}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (identifier))
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)
+            (integer_literal))))
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_element
+            (markup_opening_element
+              (identifier)
+              (markup_attribute
+                (identifier)
+                (markup_expression
+                  (closure_expression
+                    (closure_parameters)
+                    (binary_expression
+                      (call_expression
+                        (field_expression
+                          (identifier)
+                          (field_identifier))
+                        (arguments))
+                      (integer_literal))))))
+            (string_literal)
+            (markup_closing_element
+              (identifier))))))))
+
+
+================================================================================
+Complex Class attribute
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	let (count, set_count) = create_signal(cx, 2);
+
+	// this allows you to use CSS frameworks that include complex class names
+	view! { cx,
+	  <div
+	    class=("is-[this_-_really]-necessary-42", move || count.get() < 3)
+	  >
+	    "Now you see me, now you don’t."
+	  </div>
+	}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (identifier))
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)
+            (integer_literal))))
+      (line_comment)
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_element
+            (markup_opening_element
+              (identifier)
+              (markup_attribute
+                (identifier)
+                (tuple_expression
+                  (string_literal)
+                  (closure_expression
+                    (closure_parameters)
+                    (binary_expression
+                      (call_expression
+                        (field_expression
+                          (identifier)
+                          (field_identifier))
+                        (arguments))
+                      (integer_literal))))))
+            (string_literal)
+            (markup_closing_element
+              (identifier))))))))
+
+================================================================================
+Style attribute
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	let (x, set_x) = create_signal(cx, 0);
+	let (y, set_y) = create_signal(cx, 0);
+
+	view! { cx,
+	  <div
+	    style="position: absolute"
+	    style:left=move || format!("{}px", x.get())
+	    style:top=move || format!("{}px", y.get())
+	    style=("background-color", move || format!("rgb({}, {}, 100)", x.get(), y.get()))
+	  >
+	    "Moves when coordinates change"
+	  </div>
+	}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (identifier))
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)
+            (integer_literal))))
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (identifier))
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)
+            (integer_literal))))
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_element
+            (markup_opening_element
+              (identifier)
+              (markup_attribute
+                (identifier)
+                (string_literal))
+              (markup_attribute
+                (identifier)
+                (closure_expression
+                  (closure_parameters)
+                  (macro_invocation
+                    (identifier)
+                    (token_tree
+                      (string_literal)
+                      (identifier)
+                      (identifier)
+                      (token_tree)))))
+              (markup_attribute
+                (identifier)
+                (closure_expression
+                  (closure_parameters)
+                  (macro_invocation
+                    (identifier)
+                    (token_tree
+                      (string_literal)
+                      (identifier)
+                      (identifier)
+                      (token_tree)))))
+              (markup_attribute
+                (identifier)
+                (tuple_expression
+                  (string_literal)
+                  (closure_expression
+                    (closure_parameters)
+                    (macro_invocation
+                      (identifier)
+                      (token_tree
+                        (string_literal)
+                        (identifier)
+                        (identifier)
+                        (token_tree)
+                        (identifier)
+                        (identifier)
+                        (token_tree)))))))
+            (string_literal)
+            (markup_closing_element
+              (identifier))))))))
+
+================================================================================
+Ref attribute
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	let (value, set_value) = create_signal(cx, 0);
+
+	let my_input = create_node_ref::<Input>(cx);
+	view! { cx, <input type="text" _ref=my_input/> }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (identifier))
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)
+            (integer_literal))))
+      (let_declaration
+        (identifier)
+        (call_expression
+          (generic_function
+            (identifier)
+            (type_arguments
+              (type_identifier)))
+          (arguments
+            (identifier))))
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_self_closing_element
+            (identifier)
+            (markup_attribute
+              (identifier)
+              (string_literal))
+            (markup_attribute
+              (identifier)
+              (identifier))))))))
+
+================================================================================
+Inner HTML
+================================================================================
+
+#[component]
+fn App(cx: Scope) -> impl IntoView {
+	let html = "<p>This HTML will be injected.</p>";
+
+	view! { cx,
+	  <div inner_html=html/>
+	}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (let_declaration
+        (identifier)
+        (string_literal))
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_self_closing_element
+            (identifier)
+            (markup_attribute
+              (identifier)
+              (identifier))))))))
+
+================================================================================
+Complex Example
+================================================================================
+
+#[component]
+pub fn SimpleCounter(cx: Scope) -> impl IntoView {
+    // create a reactive signal with the initial value
+    let (value, set_value) = create_signal(cx, 0);
+
+    // create event handlers for our buttons
+    // note that `value` and `set_value` are `Copy`, so it's super easy to move them into closures
+    let clear = move |_ev| set_value.set(0);
+    let decrement = move |_ev| set_value.update(|value| *value -= 1);
+    let increment = move |_ev| set_value.update(|value| *value += 1);
+
+    // this JSX is compiled to an HTML template string for performance
+    view! {
+        cx,
+        <div>
+            <button on:click=clear>"Clear"</button>
+            <button on:click=decrement>"-1"</button>
+            <span>"Value: " {move || value.get().to_string()} "!"</span>
+            <button on:click=increment>"+1"</button>
+        </div>
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (attribute_item
+    (attribute
+      (identifier)))
+  (function_item
+    (visibility_modifier)
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (abstract_type
+      (type_identifier))
+    (block
+      (line_comment)
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (identifier))
+        (call_expression
+          (identifier)
+          (arguments
+            (identifier)
+            (integer_literal))))
+      (line_comment)
+      (line_comment)
+      (let_declaration
+        (identifier)
+        (closure_expression
+          (closure_parameters
+            (identifier))
+          (call_expression
+            (field_expression
+              (identifier)
+              (field_identifier))
+            (arguments
+              (integer_literal)))))
+      (let_declaration
+        (identifier)
+        (closure_expression
+          (closure_parameters
+            (identifier))
+          (call_expression
+            (field_expression
+              (identifier)
+              (field_identifier))
+            (arguments
+              (closure_expression
+                (closure_parameters
+                  (identifier))
+                (compound_assignment_expr
+                  (unary_expression
+                    (identifier))
+                  (integer_literal)))))))
+      (let_declaration
+        (identifier)
+        (closure_expression
+          (closure_parameters
+            (identifier))
+          (call_expression
+            (field_expression
+              (identifier)
+              (field_identifier))
+            (arguments
+              (closure_expression
+                (closure_parameters
+                  (identifier))
+                (compound_assignment_expr
+                  (unary_expression
+                    (identifier))
+                  (integer_literal)))))))
+      (line_comment)
+      (macro_invocation
+        (view_expression
+          (identifier)
+          (markup_element
+            (markup_opening_element
+              (identifier))
+            (markup_element
+              (markup_opening_element
+                (identifier)
+                (markup_attribute
+                  (identifier)
+                  (identifier)))
+              (string_literal)
+              (markup_closing_element
+                (identifier)))
+            (markup_element
+              (markup_opening_element
+                (identifier)
+                (markup_attribute
+                  (identifier)
+                  (identifier)))
+              (string_literal)
+              (markup_closing_element
+                (identifier)))
+            (markup_element
+              (markup_opening_element
+                (identifier))
+              (string_literal)
+              (markup_expression
+                (closure_expression
+                  (closure_parameters)
+                  (call_expression
+                    (field_expression
+                      (call_expression
+                        (field_expression
+                          (identifier)
+                          (field_identifier))
+                        (arguments))
+                      (field_identifier))
+                    (arguments))))
+              (string_literal)
+              (markup_closing_element
+                (identifier)))
+            (markup_element
+              (markup_opening_element
+                (identifier)
+                (markup_attribute
+                  (identifier)
+                  (identifier)))
+              (string_literal)
+              (markup_closing_element
+                (identifier)))
+            (markup_closing_element
+              (identifier))))))))
+
+
+================================================================================
+Router Example
+================================================================================
+
+#[component]
+pub fn App(cx: Scope) -> impl IntoView {
+    provide_meta_context(cx);
+
+    view! {
+        cx,
+        <Title text="Hello world" />
+
+        <Stylesheet id="leptos" href="/pkg/recipe-store.css"/>
+
+        <Router>
+            <main>
+                <Routes>
+                    <Route path="" view={|cx| view! { cx, <HomePage /> }}/>
+                </Routes>
+            </main>
+        </Router>
+    }
+}
+
+#[component]
+fn HomePage(cx: Scope) -> impl IntoView {
+    // Creates a reactive value to update the button
+    let (count, set_count) = create_signal(cx, 0);
+    let on_click = move |_| set_count.update(|count| *count += 1);
+
+    view! { 
+        cx,
+        <h1 class="bg-blue-500"> 
+            "Welcome to Leptos!"
+        </h1>
+        <button class="p-4 border" on:click={on_click}>
+            "Click Me: " {count}
+        </button>
+    }
+}
+
+--------------------------------------------------------------------------------
+
+
+

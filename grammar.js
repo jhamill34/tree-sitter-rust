@@ -882,15 +882,19 @@ module.exports = grammar({
       $.const_block
     ),
 
-    macro_invocation: $ => seq(
-      field('macro', choice(
-        $.scoped_identifier,
-        $.identifier,
-        $._reserved_identifier,
-      )),
-      '!',
-      alias($.delim_token_tree, $.token_tree)
-    ),
+	macro_invocation: ($, original) => 
+		choice (
+			$.view_expression,
+			seq(
+    		  field('macro', choice(
+    		    $.scoped_identifier,
+    		    $.identifier,
+    		    $._reserved_identifier,
+    		  )),
+    		  '!',
+    		  alias($.delim_token_tree, $.token_tree)
+    		),
+		),
 
     delim_token_tree: $ => choice(
       seq('(', repeat($._delim_tokens), ')'),
@@ -1474,7 +1478,79 @@ module.exports = grammar({
     super: $ => 'super',
     crate: $ => 'crate',
 
-    metavariable: $ => /\$[a-zA-Z_]\w*/
+    metavariable: $ => /\$[a-zA-Z_]\w*/,
+	   
+	
+	view_expression: ($) => 
+		seq(
+			'view!', '{', $.identifier, ',',
+				repeat($._markup_element),
+			'}'
+		),
+	
+	_markup_element: ($) => choice($.markup_element, $.markup_self_closing_element),
+	
+	markup_element: ($) => seq(
+		field('open_tag', $.markup_opening_element),
+		repeat($._markup_child),
+		field('close_tag', $.markup_closing_element)
+	),
+	
+	markup_opening_element: ($) => prec.dynamic(-1, seq(
+		'<',
+		optional(seq(
+			field('name', $.identifier),
+			repeat(field('attribute', $.markup_attribute)),
+		)),
+		'>'
+	)),
+	
+	markup_closing_element: ($) => seq(
+		'</',
+		optional(field('name', $.identifier)),
+		'>'
+	),
+	
+	_markup_child: ($) => choice(
+		$._literal,
+		$._markup_element,
+		$.markup_expression,
+	),
+	
+	markup_expression: ($) => seq(
+		'{', 
+		choice(
+			$.closure_expression,
+			$.identifier,
+		),
+		'}', 
+	),
+	
+	markup_self_closing_element: ($) => seq(
+		'<',
+		field('name', $.identifier),
+		repeat(field('attribute', $.markup_attribute)),
+		'/>',
+	),
+	
+	markup_attribute: ($) => seq(
+		$._markup_attribute_name,
+		'=',
+		$._markup_attribute_value,
+	),
+	
+	_markup_attribute_name: ($) => seq(
+		optional(
+			choice('on:', 'prop:', 'style:', 'class:')
+		),
+		$.identifier
+	),
+	
+	_markup_attribute_value: ($) => choice(
+		$.tuple_expression,
+		$.markup_expression,
+		$._literal,
+	)
   }
 })
 
