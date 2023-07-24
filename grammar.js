@@ -1517,14 +1517,11 @@ module.exports = grammar({
 		$.markup_expression,
 	),
 	
-	markup_expression: ($) => seq(
+	markup_expression: ($) => prec.right(1, seq(
 		'{', 
-		choice(
-			$.closure_expression,
-			$.identifier,
-		),
+		$._expression,
 		'}', 
-	),
+	)),
 	
 	markup_self_closing_element: ($) => seq(
 		'<',

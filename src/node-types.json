@@ -2731,11 +2731,7 @@
       "required": true,
       "types": [
         {
-          "type": "closure_expression",
-          "named": true
-        },
-        {
-          "type": "identifier",
+          "type": "_expression",
           "named": true
         }
       ]

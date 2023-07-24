@@ -121,7 +121,7 @@ fn App(cx: Scope) -> impl IntoView {
 	    name="user_name"
 	    value={move || name.get()} 
 	    prop:value={move || name.get()} 
-	    on:click=move |ev| set_name.set(event_target_value(&ev)) 
+	    on:click={move |ev| set_name.set(event_target_value(&ev))}
 	  />
 	}
 }
@@ -187,19 +187,20 @@ fn App(cx: Scope) -> impl IntoView {
                     (arguments)))))
             (markup_attribute
               (identifier)
-              (closure_expression
-                (closure_parameters
-                  (identifier))
-                (call_expression
-                  (field_expression
-                    (identifier)
-                    (field_identifier))
-                  (arguments
-                    (call_expression
-                      (identifier)
-                      (arguments
-                        (reference_expression
-                          (identifier))))))))))))))
+			  (markup_expression 
+				(closure_expression
+              	  (closure_parameters
+              	    (identifier))
+              	  (call_expression
+              	    (field_expression
+              	      (identifier)
+              	      (field_identifier))
+              	    (arguments
+              	      (call_expression
+              	        (identifier)
+              	        (arguments
+              	          (reference_expression
+              	            (identifier)))))))))))))))
 
 ================================================================================
 Class attribute
@@ -340,8 +341,8 @@ fn App(cx: Scope) -> impl IntoView {
 	view! { cx,
 	  <div
 	    style="position: absolute"
-	    style:left=move || format!("{}px", x.get())
-	    style:top=move || format!("{}px", y.get())
+	    style:left={move || format!("{}px", x.get())}
+	    style:top={move || format!("{}px", y.get())}
 	    style=("background-color", move || format!("rgb({}, {}, 100)", x.get(), y.get()))
 	  >
 	    "Moves when coordinates change"
@@ -393,26 +394,28 @@ fn App(cx: Scope) -> impl IntoView {
                 (string_literal))
               (markup_attribute
                 (identifier)
-                (closure_expression
-                  (closure_parameters)
-                  (macro_invocation
-                    (identifier)
-                    (token_tree
-                      (string_literal)
-                      (identifier)
-                      (identifier)
-                      (token_tree)))))
+				(markup_expression 
+					(closure_expression
+					  (closure_parameters)
+					  (macro_invocation
+						(identifier)
+						(token_tree
+						  (string_literal)
+						  (identifier)
+						  (identifier)
+						  (token_tree))))))
               (markup_attribute
                 (identifier)
-                (closure_expression
-                  (closure_parameters)
-                  (macro_invocation
-                    (identifier)
-                    (token_tree
-                      (string_literal)
-                      (identifier)
-                      (identifier)
-                      (token_tree)))))
+				(markup_expression
+				 (closure_expression
+				  (closure_parameters)
+				  (macro_invocation
+				   (identifier)
+				   (token_tree
+					(string_literal)
+					(identifier)
+					(identifier)
+					(token_tree))))))
               (markup_attribute
                 (identifier)
                 (tuple_expression
@@ -442,7 +445,7 @@ fn App(cx: Scope) -> impl IntoView {
 	let (value, set_value) = create_signal(cx, 0);
 
 	let my_input = create_node_ref::<Input>(cx);
-	view! { cx, <input type="text" _ref=my_input/> }
+	view! { cx, <input type="text" _ref={my_input} /> }
 }
 
 --------------------------------------------------------------------------------
@@ -488,7 +491,8 @@ fn App(cx: Scope) -> impl IntoView {
               (string_literal))
             (markup_attribute
               (identifier)
-              (identifier))))))))
+			  (markup_expression
+              (identifier)))))))))
 
 ================================================================================
 Inner HTML
@@ -499,7 +503,7 @@ fn App(cx: Scope) -> impl IntoView {
 	let html = "<p>This HTML will be injected.</p>";
 
 	view! { cx,
-	  <div inner_html=html/>
+	  <div inner_html={html}/>
 	}
 }
 
@@ -528,7 +532,8 @@ fn App(cx: Scope) -> impl IntoView {
             (identifier)
             (markup_attribute
               (identifier)
-              (identifier))))))))
+			  (markup_expression
+			   (identifier)))))))))
 
 ================================================================================
 Complex Example
@@ -549,10 +554,10 @@ pub fn SimpleCounter(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div>
-            <button on:click=clear>"Clear"</button>
-            <button on:click=decrement>"-1"</button>
+            <button on:click={clear}>"Clear"</button>
+            <button on:click={decrement}>"-1"</button>
             <span>"Value: " {move || value.get().to_string()} "!"</span>
-            <button on:click=increment>"+1"</button>
+            <button on:click={increment}>"+1"</button>
         </div>
     }
 }
@@ -642,7 +647,8 @@ pub fn SimpleCounter(cx: Scope) -> impl IntoView {
                 (identifier)
                 (markup_attribute
                   (identifier)
-                  (identifier)))
+				  (markup_expression
+				   (identifier))))
               (string_literal)
               (markup_closing_element
                 (identifier)))
@@ -651,7 +657,8 @@ pub fn SimpleCounter(cx: Scope) -> impl IntoView {
                 (identifier)
                 (markup_attribute
                   (identifier)
-                  (identifier)))
+				  (markup_expression
+				   (identifier))))
               (string_literal)
               (markup_closing_element
                 (identifier)))
@@ -679,7 +686,8 @@ pub fn SimpleCounter(cx: Scope) -> impl IntoView {
                 (identifier)
                 (markup_attribute
                   (identifier)
-                  (identifier)))
+				  (markup_expression
+				   (identifier))))
               (string_literal)
               (markup_closing_element
                 (identifier)))
@@ -712,23 +720,163 @@ pub fn App(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn HomePage(cx: Scope) -> impl IntoView {
-    // Creates a reactive value to update the button
-    let (count, set_count) = create_signal(cx, 0);
-    let on_click = move |_| set_count.update(|count| *count += 1);
-
-    view! { 
+fn Navigation(cx: Scope, darkmode_toggle: WriteSignal<bool>) -> impl IntoView {
+    view! {
         cx,
-        <h1 class="bg-blue-500"> 
-            "Welcome to Leptos!"
-        </h1>
-        <button class="p-4 border" on:click={on_click}>
-            "Click Me: " {count}
-        </button>
+        <nav
+            class="flex items-center border-b border-slate-100 p-4"
+        >
+            <div class="text-xl font-bold flex-1">
+                "Recipe Store"
+            </div>
+
+            <button on:click={move |_| darkmode_toggle.update(|value| *value = !*value )} >
+                <Icon icon={icon!(FiMoon)} />
+            </button>
+        </nav>
     }
 }
 
+
 --------------------------------------------------------------------------------
+
+(source_file
+    (attribute_item
+      (attribute
+        (identifier)))
+    (function_item
+      (visibility_modifier)
+      (identifier)
+      (parameters
+        (parameter
+          (identifier)
+          (type_identifier)))
+      (abstract_type
+        (type_identifier))
+      (block
+        (expression_statement
+          (call_expression
+            (identifier)
+            (arguments
+              (identifier))))
+        (macro_invocation
+          (view_expression
+            (identifier)
+            (markup_self_closing_element
+              (identifier)
+              (markup_attribute
+                (identifier)
+                (string_literal)))
+            (markup_self_closing_element
+              (identifier)
+              (markup_attribute
+                (identifier)
+                (string_literal))
+              (markup_attribute
+                (identifier)
+                (string_literal)))
+            (markup_element
+              (markup_opening_element
+                (identifier))
+              (markup_element
+                (markup_opening_element
+                  (identifier))
+                (markup_element
+                  (markup_opening_element
+                    (identifier))
+                  (markup_self_closing_element
+                    (identifier)
+                    (markup_attribute
+                      (identifier)
+                      (string_literal))
+                    (markup_attribute
+                      (identifier)
+                      (markup_expression
+                        (closure_expression
+                          (closure_parameters
+                            (identifier))
+                          (macro_invocation
+                            (view_expression
+                              (identifier)
+                              (markup_self_closing_element
+                                (identifier))))))))
+                  (markup_closing_element
+                    (identifier)))
+                (markup_closing_element
+                  (identifier)))
+              (markup_closing_element
+                (identifier)))))))
+    (attribute_item
+      (attribute
+        (identifier)))
+    (function_item
+      (identifier)
+      (parameters
+        (parameter
+          (identifier)
+          (type_identifier))
+        (parameter
+          (identifier)
+          (generic_type
+            (type_identifier)
+            (type_arguments
+              (primitive_type)))))
+      (abstract_type
+        (type_identifier))
+      (block
+        (macro_invocation
+          (view_expression
+            (identifier)
+            (markup_element
+              (markup_opening_element
+                (identifier)
+                (markup_attribute
+                  (identifier)
+                  (string_literal)))
+              (markup_element
+                (markup_opening_element
+                  (identifier)
+                  (markup_attribute
+                    (identifier)
+                    (string_literal)))
+                (string_literal)
+                (markup_closing_element
+                  (identifier)))
+              (markup_element
+                (markup_opening_element
+                  (identifier)
+                  (markup_attribute
+                    (identifier)
+                    (markup_expression
+                      (closure_expression
+                        (closure_parameters)
+                        (call_expression
+                          (field_expression
+                            (identifier)
+                            (field_identifier))
+                          (arguments
+                            (closure_expression
+                              (closure_parameters
+                                (identifier))
+                              (assignment_expression
+                                (unary_expression
+                                  (identifier))
+                                (unary_expression
+                                  (unary_expression
+                                    (identifier)))))))))))
+                (markup_self_closing_element
+                  (identifier)
+                  (markup_attribute
+                    (identifier)
+                    (markup_expression
+                      (macro_invocation
+                        (identifier)
+                        (token_tree
+                          (identifier))))))
+                (markup_closing_element
+                  (identifier)))
+              (markup_closing_element
+                (identifier))))))))
 
 
 
